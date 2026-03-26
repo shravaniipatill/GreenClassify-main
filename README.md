@@ -154,21 +154,19 @@ Model integrated into Flask web app.
 
 Dataset Kaggle Link : https://www.kaggle.com/datasets/misrakahmed/vegetable-image-dataset
 
-1️⃣ Clone Repository
-git clone https://github.com/Shree-2516/GreenClassify.git
-cd GreenClassify
-2️⃣ Create Virtual Environment
+
+1: Create Virtual Environment
 Windows
 python -m venv venv
 venv\Scripts\activate
 Linux / Mac
 python3 -m venv venv
 source venv/bin/activate
-3️⃣ Install Dependencies
+2: Install Dependencies
 pip install -r requirements.txt
-4️⃣ Run Application
+3: Run Application
 python app.py
-5️⃣ Open Browser
+4: Open Browser
 http://127.0.0.1:5000
 
 Upload an image and test the model 🎉
@@ -183,7 +181,7 @@ Upload an image and test the model 🎉
 
 👨‍💻 Author
 
-Shreeyash Paraj
+Shravani patil
 Deep Learning Intern – SkillWallet / SmartInternz
 
 📜 License
