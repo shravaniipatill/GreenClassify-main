@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en" class="{% if prediction_results or image_path %}no-smooth{% endif %}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>GreenClassify - AI Vegetable Detection</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar glass">
+        <div class="logo">
+            <i class="fa-solid fa-leaf"></i> GreenClassify
+        </div>
+        <div class="links">
+            <a href="#home">Home</a>
+            <a href="#about">About</a>
+            <a href="#predict" class="btn-nav">Try Prediction</a>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section id="home" class="section hero">
+        <div class="hero-content">
+            <h1>Smart Vegetable Recognition <br> Powered by AI</h1>
+            <p>Instantly identify vegetables and check for freshness using our advanced multi-object detection system.
+            </p>
+            <div class="hero-btns">
+                <a href="#predict" class="btn btn-primary">Start Analyzing <i class="fa-solid fa-arrow-right"></i></a>
+                <a href="#about" class="btn btn-secondary">Learn More</a>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-item">
+                    <h3>15+</h3>
+                    <span>Classes</span>
+                </div>
+                <div class="stat-item">
+                    <h3>99%</h3>
+                    <span>Accuracy</span>
+                </div>
+                <div class="stat-item">
+                    <h3>AI</h3>
+                    <span>Powered</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ABOUT SECTION -->
+    <section id="about" class="section about">
+        <div class="container">
+            <div class="section-header">
+                <h2>How It Works</h2>
+                <p>Advanced Computer Vision at your fingertips</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="icon-box">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                    </div>
+                    <h3>1. Upload</h3>
+                    <p>Select an image containing one or more vegetables from your device.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon-box">
+                        <i class="fa-solid fa-microchip"></i>
+                    </div>
+                    <h3>2. Process</h3>
+                    <p>Our AI scans the image, detecting objects and filtering out non-food items.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon-box">
+                        <i class="fa-solid fa-list-check"></i>
+                    </div>
+                    <h3>3. Result</h3>
+                    <p>Get instant classification, counts, and a visual analyzed report.</p>
+                </div>
+            </div>
+
+            <div class="tech-stack-row">
+                <span>Powered by:</span>
+                <div class="tech-badge"><i class="fa-brands fa-python"></i> Python</div>
+                <div class="tech-badge"><i class="fa-solid fa-brain"></i> TensorFlow</div>
+                <div class="tech-badge"><i class="fa-solid fa-eye"></i> OpenCV</div>
+                <div class="tech-badge"><i class="fa-solid fa-flask"></i> Flask</div>
+                <div class="tech-badge"><i class="fa-solid fa-network-wired"></i> CNN</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PREDICTION SECTION -->
+    <section id="predict" class="section predict">
+        <div class="container">
+            <div class="section-header">
+                <h2>Analyze Image</h2>
+                <p>Upload your image below to get started</p>
+            </div>
+
+            <div class="card glass-card {% if image_path or prediction_results %}wide{% endif %}">
+                <div class="pred-wrap {% if image_path or prediction_results %}two-column{% endif %}">
+
+                    <div class="col upload-col">
+                        <form method="POST" enctype="multipart/form-data" action="{{ url_for('index') }}#predict"
+                            onsubmit="showLoader()" id="uploadForm">
+
+                            <!-- Modern Upload Area -->
+                            <div class="upload-area" id="dropZone">
+                                <input type="file" name="file" id="fileInput" accept="image/*" required hidden>
+                                <div class="upload-content">
+                                    <i class="fa-solid fa-image"></i>
+                                    <h3>Choose Image</h3>
+                                    <p>or drag & drop here</p>
+                                </div>
+                                <div class="upload-preview" id="previewContainer">
+                                    <div class="preview-box">
+                                        <img id="localPreview">
+                                        <div class="scan-line" id="scanLine"></div>
+                                    </div>
+                                    <p id="fileName"></p>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block" id="predictBtn">
+                                <span id="btnText">Run Analysis</span>
+                                <span class="loader" id="spinner"></span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Results Column -->
+                    <div class="col result-col {% if not image_path %}hidden-col{% endif %}">
+                        {% if image_path %}
+                        <div class="result-image-box">
+                            <img src="{{ image_path }}" class="result-img" alt="Analyzed Image">
+                        </div>
+                        {% endif %}
+
+                        <div class="result-data">
+                            {% if total_count > 0 %}
+                            <div class="result-header">
+                                <h3><i class="fa-solid fa-check-circle"></i> Analysis Complete</h3>
+                                <span class="total-badge">{{ total_count }} Items Found</span>
+                            </div>
+
+                            <div class="vegetable-list">
+                                {% for veg, count in counts.items() %}
+                                <div class="veg-item">
+                                    <div class="veg-name">{{ veg }}</div>
+                                    <div class="veg-count">x{{ count }}</div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% elif image_path and total_count == 0 %}
+                            <div class="result-empty">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                <h3>No Vegetables Detected</h3>
+                                <p>We couldn't identify any known vegetables. Please try another image.</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">🌿 GreenClassify</div>
+            <p>Advanced Vegetable Classification System using Deep Learning.</p>
+            <div class="socials">
+                <a href="#"><i class="fa-brands fa-github"></i></a>
+                <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                <a href="#"><i class="fa-brands fa-linkedin"></i></a>
+            </div>
+        </div>
+        <div class="copyright">
+            &copy; 2026 GreenClassify. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        function showLoader() {
+            document.getElementById("btnText").innerText = "Analyzing...";
+            document.getElementById("spinner").style.display = "inline-block";
+            document.getElementById("predictBtn").classList.add("loading");
+            document.getElementById("scanLine").style.display = "block"; // Start scanning animation
+        }
+
+        /* Preview selected image */
+        const fileInput = document.getElementById("fileInput");
+        const dropZone = document.getElementById("dropZone");
+        const previewContainer = document.getElementById("previewContainer");
+        const uploadContent = document.querySelector(".upload-content");
+        const localPreview = document.getElementById("localPreview");
+        const fileName = document.getElementById("fileName");
+
+        // Trigger file input on click
+        dropZone.addEventListener("click", () => fileInput.click());
+
+        fileInput.addEventListener("change", function () {
+            handleFile(this.files[0]);
+        });
+
+        // Drag and Drop support
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if (file) {
+                fileName.innerText = file.name;
+                const reader = new FileReader();
+                reader.onload = e => {
+                    localPreview.src = e.target.result;
+                    uploadContent.style.display = 'none';
+                    previewContainer.style.display = 'flex';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+
+</body>
+
+</html>
