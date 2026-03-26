@@ -167,7 +167,7 @@ pip install -r requirements.txt
 3: Run Application
 python app.py
 4: Open Browser
-http://127.0.0.1:5000
+http://127.0.0.1:10000
 
 Upload an image and test the model 🎉
 
